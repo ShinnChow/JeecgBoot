@@ -127,8 +127,8 @@ services:
     build:
       context: ./jeecgboot-vue3
       dockerfile: Dockerfile.cloud
-    container_name: jeecgboot-vue3-nginx
-    image: jeecgboot-vue3
+    container_name: jeecgboot-vue3-nginx-cloud
+    image: jeecgboot-vue3-cloud
     depends_on:
       - jeecg-boot-system
     networks:
