@@ -29,7 +29,7 @@
 
 	<properties>
 		<jeecgboot.version>3.9.1</jeecgboot.version>
-		<!-- JDK版本支持17、21、24 -->
+		<!-- JDK版本支持17、21、24、25 -->
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -57,7 +57,7 @@
 		<!-- 积木报表-->
 		<jimureport-spring-boot-starter.version>2.3.2</jimureport-spring-boot-starter.version>
 		<jimubi-spring-boot-starter.version>2.3.2</jimubi-spring-boot-starter.version>
-		<minidao.version>1.10.18</minidao.version>
+		<minidao.version>1.10.20</minidao.version>
 		<autopoi-web.version>2.0.4</autopoi-web.version>
 		
 		<!-- 持久层 -->
@@ -75,7 +75,7 @@
 		<shiro.version>2.0.5</shiro.version>
 		<shiro-redis.version>3.2.3</shiro-redis.version>
 		<java-jwt.version>4.5.0</java-jwt.version>
-		<codegenerate.version>1.5.5</codegenerate.version>
+		<codegenerate.version>1.5.6</codegenerate.version>
 		<minio.version>8.5.7</minio.version>
 		<justauth-spring-boot-starter.version>1.4.0</justauth-spring-boot-starter.version>
 		<dom4j.version>1.6.1</dom4j.version>
@@ -545,8 +545,8 @@
 			<!-- chatgpt -->
 			<dependency>
 				<groupId>org.jeecgframework.boot3</groupId>
-				<artifactId>jeecg-boot-starter-chatgpt</artifactId>
-                <version>3.9.1.1</version>
+				<artifactId>jeecg-boot-starter-ai</artifactId>
+                <version>3.9.1.9</version>
 			</dependency>
 			<!--flyway 支持 mysql5.7+、MariaDB10.3.16-->
 			<!--mysql5.6，需要把版本号改成5.2.1-->

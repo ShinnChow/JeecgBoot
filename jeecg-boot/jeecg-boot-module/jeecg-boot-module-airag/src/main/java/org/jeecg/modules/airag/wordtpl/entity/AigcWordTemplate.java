@@ -25,7 +25,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
 @Schema(description = "word模版管理")
-public class EoaWordTemplate implements Serializable {
+public class AigcWordTemplate implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

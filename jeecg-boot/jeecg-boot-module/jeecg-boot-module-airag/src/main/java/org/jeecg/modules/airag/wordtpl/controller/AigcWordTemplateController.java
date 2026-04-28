@@ -15,8 +15,8 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.AssertUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.airag.wordtpl.dto.WordTplGenDTO;
-import org.jeecg.modules.airag.wordtpl.entity.EoaWordTemplate;
-import org.jeecg.modules.airag.wordtpl.service.IEoaWordTemplateService;
+import org.jeecg.modules.airag.wordtpl.entity.AigcWordTemplate;
+import org.jeecg.modules.airag.wordtpl.service.IAigcWordTemplateService;
 import org.jeecg.modules.airag.wordtpl.utils.WordTplUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,12 +37,12 @@ import java.util.Arrays;
  * @Version: V1.0
  */
 @Tag(name = "word模版管理")
-@RestController("eoaWordTemplateController")
+@RestController("aigcWordTemplateController")
 @RequestMapping("/airag/word")
 @Slf4j
-public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, IEoaWordTemplateService> {
+public class AigcWordTemplateController extends JeecgController<AigcWordTemplate, IAigcWordTemplateService> {
     @Autowired
-    private IEoaWordTemplateService eoaWordTemplateService;
+    private IAigcWordTemplateService eoaWordTemplateService;
 
     @Autowired
     WordTplUtils wordTplUtils;
@@ -58,13 +58,13 @@ public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, 
      */
     @Operation(summary = "word模版管理-分页列表查询")
     @GetMapping(value = "/list")
-    public Result<IPage<EoaWordTemplate>> queryPageList(EoaWordTemplate eoaWordTemplate,
-                                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                        @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                        HttpServletRequest req) {
-        QueryWrapper<EoaWordTemplate> queryWrapper = QueryGenerator.initQueryWrapper(eoaWordTemplate, req.getParameterMap());
-        Page<EoaWordTemplate> page = new Page<EoaWordTemplate>(pageNo, pageSize);
-        IPage<EoaWordTemplate> pageList = eoaWordTemplateService.page(page, queryWrapper);
+    public Result<IPage<AigcWordTemplate>> queryPageList(AigcWordTemplate eoaWordTemplate,
+                                                         @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                         @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                         HttpServletRequest req) {
+        QueryWrapper<AigcWordTemplate> queryWrapper = QueryGenerator.initQueryWrapper(eoaWordTemplate, req.getParameterMap());
+        Page<AigcWordTemplate> page = new Page<AigcWordTemplate>(pageNo, pageSize);
+        IPage<AigcWordTemplate> pageList = eoaWordTemplateService.page(page, queryWrapper);
         return Result.OK(pageList);
     }
 
@@ -78,10 +78,10 @@ public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, 
     @Operation(summary = "word模版管理-添加")
 //	@RequiresPermissions("wordtpl:template:add")
     @PostMapping(value = "/add")
-    public Result<String> add(@RequestBody EoaWordTemplate eoaWordTemplate) {
+    public Result<String> add(@RequestBody AigcWordTemplate eoaWordTemplate) {
         AssertUtils.assertNotEmpty("参数异常", eoaWordTemplate);
         AssertUtils.assertNotEmpty("模版名称不能为空", eoaWordTemplate.getName());
-        boolean isCodeExists = eoaWordTemplateService.exists(Wrappers.lambdaQuery(EoaWordTemplate.class).eq(EoaWordTemplate::getCode, eoaWordTemplate.getCode()));
+        boolean isCodeExists = eoaWordTemplateService.exists(Wrappers.lambdaQuery(AigcWordTemplate.class).eq(AigcWordTemplate::getCode, eoaWordTemplate.getCode()));
         AssertUtils.assertFalse("模版编码已存在", isCodeExists);
         eoaWordTemplateService.save(eoaWordTemplate);
         return Result.OK("添加成功！");
@@ -97,7 +97,7 @@ public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, 
     @Operation(summary = "word模版管理-编辑")
 //	@RequiresPermissions("wordtpl:template:edit")
     @RequestMapping(value = "/edit", method = {RequestMethod.PUT, RequestMethod.POST})
-    public Result<String> edit(@RequestBody EoaWordTemplate eoaWordTemplate) {
+    public Result<String> edit(@RequestBody AigcWordTemplate eoaWordTemplate) {
         AssertUtils.assertNotEmpty("参数异常", eoaWordTemplate);
         AssertUtils.assertNotEmpty("模版名称不能为空", eoaWordTemplate.getName());
         // 避免编辑时修改编码
@@ -145,8 +145,8 @@ public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, 
     //@AutoLog(value = "word模版管理-通过id查询")
     @Operation(summary = "word模版管理-通过id查询")
     @GetMapping(value = "/queryById")
-    public Result<EoaWordTemplate> queryById(@RequestParam(name = "id", required = true) String id) {
-        EoaWordTemplate eoaWordTemplate = eoaWordTemplateService.getById(id);
+    public Result<AigcWordTemplate> queryById(@RequestParam(name = "id", required = true) String id) {
+        AigcWordTemplate eoaWordTemplate = eoaWordTemplateService.getById(id);
         if (eoaWordTemplate == null) {
             return Result.error("未找到对应数据");
         }
@@ -164,7 +164,7 @@ public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, 
     @GetMapping(value = "/download")
     public void downloadTemplate(@RequestParam(name = "id", required = true) String id, HttpServletResponse response) {
         AssertUtils.assertNotEmpty("请先选择模版", id);
-        EoaWordTemplate template = eoaWordTemplateService.getById(id);
+        AigcWordTemplate template = eoaWordTemplateService.getById(id);
         try (ByteArrayOutputStream wordTemplateOut = new ByteArrayOutputStream();
              BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());) {
             wordTplUtils.generateWordTemplate(template, wordTemplateOut);
@@ -195,7 +195,7 @@ public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, 
     public Result<?> parseWOrdFile(@RequestParam("file") MultipartFile file) {
         try {
             InputStream inputStream = file.getInputStream();
-            EoaWordTemplate eoaWordTemplate = wordTplUtils.parseWordFile(inputStream);
+            AigcWordTemplate eoaWordTemplate = wordTplUtils.parseWordFile(inputStream);
             log.info("解析的模版信息: {}", eoaWordTemplate);
             return Result.OK("解析成功", eoaWordTemplate);
         } catch (Exception e) {
@@ -214,13 +214,13 @@ public class EoaWordTemplateController extends JeecgController<EoaWordTemplate, 
     @PostMapping(value = "/generate/word")
     public void generateWord(@RequestBody WordTplGenDTO wordTplGenDTO, HttpServletResponse response) {
         AssertUtils.assertNotEmpty("参数异常", wordTplGenDTO);
-        EoaWordTemplate template ;
+        AigcWordTemplate template ;
         if (oConvertUtils.isNotEmpty(wordTplGenDTO.getTemplateId())) {
             template = eoaWordTemplateService.getById(wordTplGenDTO.getTemplateId());
         }else{
             AssertUtils.assertNotEmpty("请先选择模版", wordTplGenDTO.getTemplateCode());
-            template = eoaWordTemplateService.getOne(Wrappers.lambdaQuery(EoaWordTemplate.class)
-                    .eq(EoaWordTemplate::getCode, wordTplGenDTO.getTemplateCode()));
+            template = eoaWordTemplateService.getOne(Wrappers.lambdaQuery(AigcWordTemplate.class)
+                    .eq(AigcWordTemplate::getCode, wordTplGenDTO.getTemplateCode()));
         }
         AssertUtils.assertNotEmpty("未找到对应的模版", template);
 

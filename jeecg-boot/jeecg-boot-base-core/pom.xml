@@ -377,7 +377,7 @@
 		<!-- chatgpt -->
 		<dependency>
 			<groupId>org.jeecgframework.boot3</groupId>
-			<artifactId>jeecg-boot-starter-chatgpt</artifactId>
+			<artifactId>jeecg-boot-starter-ai</artifactId>
 		</dependency>
         <!-- 腾讯云 -->
         <dependency>

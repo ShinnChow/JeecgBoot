@@ -8,9 +8,9 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.util.AssertUtils;
 import org.jeecg.modules.airag.wordtpl.dto.WordTplGenDTO;
-import org.jeecg.modules.airag.wordtpl.entity.EoaWordTemplate;
-import org.jeecg.modules.airag.wordtpl.mapper.EoaWordTemplateMapper;
-import org.jeecg.modules.airag.wordtpl.service.IEoaWordTemplateService;
+import org.jeecg.modules.airag.wordtpl.entity.AigcWordTemplate;
+import org.jeecg.modules.airag.wordtpl.mapper.AigcWordTemplateMapper;
+import org.jeecg.modules.airag.wordtpl.service.IAigcWordTemplateService;
 import org.jeecg.modules.airag.wordtpl.utils.WordTplUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,8 +25,8 @@ import java.util.Map;
  * @Version: V1.0
  */
 @Slf4j
-@Service("eoaWordTemplateService")
-public class EoaWordTemplateServiceImpl extends ServiceImpl<EoaWordTemplateMapper, EoaWordTemplate> implements IEoaWordTemplateService {
+@Service("aigcWordTemplateService")
+public class AigcWordTemplateServiceImpl extends ServiceImpl<AigcWordTemplateMapper, AigcWordTemplate> implements IAigcWordTemplateService {
 
     /**
      * 内置的系统变量键列表
@@ -50,7 +50,7 @@ public class EoaWordTemplateServiceImpl extends ServiceImpl<EoaWordTemplateMappe
         AssertUtils.assertNotEmpty("模版ID不能为空", wordTplGenDTO.getTemplateId());
         String templateId = wordTplGenDTO.getTemplateId();
         // 生成word模版 date:2025/7/10
-        EoaWordTemplate template = getById(templateId);
+        AigcWordTemplate template = getById(templateId);
         ByteArrayOutputStream wordTemplateOut = new ByteArrayOutputStream();
         wordTplUtils.generateWordTemplate(template, wordTemplateOut);
         //根据word模版和数据生成word文件
