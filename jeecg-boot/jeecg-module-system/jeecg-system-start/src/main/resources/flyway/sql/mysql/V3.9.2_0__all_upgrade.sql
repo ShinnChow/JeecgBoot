@@ -251,3 +251,187 @@ ALTER TABLE `open_api`
 
 
     
+-- Online图表功能
+DROP TABLE IF EXISTS `onl_graphreport_head`;
+CREATE TABLE `onl_graphreport_head`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'id',
+  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '图表名称',
+  `code` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '图表编码',
+  `cgr_sql` varchar(5000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '查询数据SQL',
+  `xaxis_field` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'X轴数据字段',
+  `yaxis_field` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'Y轴数据字段',
+  `yaxis_text` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'y轴文字描述',
+  `content` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `extend_js` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '扩展JS',
+  `graph_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图表类型',
+  `is_combination` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'combination' COMMENT '是否组合',
+  `display_template` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '展示模板',
+  `data_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '数据类型',
+  `db_source` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '动态数据源',
+  `tenant_id` int(11) NULL DEFAULT 0 COMMENT '租户ID',
+  `low_app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '关联的应用ID',
+  `create_time` datetime NULL DEFAULT NULL,
+  `create_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `update_time` datetime NULL DEFAULT NULL,
+  `update_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uniq_gpreport_code`(`code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of onl_graphreport_head
+-- ----------------------------
+INSERT INTO `onl_graphreport_head` VALUES ('0dbeb0dfc3ec18f0ce8d1d0caeeb6095', '统计近十日的登陆次数', 'login_count_charts', 'SELECT\n	count(*) num,\n	DATE_FORMAT(create_time, \'%Y-%m-%d\') AS `day`\nFROM\n	sys_log\nWHERE\n	log_type = 1\nAND create_time > DATE_SUB(NOW(), INTERVAL 10 DAY)\nGROUP BY\n	DATE_FORMAT(create_time, \'%Y-%m-%d\')', 'day', 'num', '登陆次数', '统计登陆', '', 'line,pie,bar,table', 'combination', 'tab', 'sql', '', 0, NULL, '2019-04-11 14:36:30', 'admin', '2020-06-10 19:08:45', 'admin');
+INSERT INTO `onl_graphreport_head` VALUES ('1290934362649460737', '统计男女比例', 'tj_user_bysex', 'select count(*) cout, sex from sys_user group by sex', 'sex', 'cout', 'yaxis_text', NULL, NULL, 'line,bar', 'combination', 'tab', 'sql', '', 0, NULL, '2020-08-05 16:55:11', 'admin', '2020-08-05 17:03:06', 'admin');
+INSERT INTO `onl_graphreport_head` VALUES ('1306860129020305409', 'online图表API示例', 'onlapihtp', 'http://api.jeecg.com/mock/308/graphreport/apitest', 'sex', 'cnt', 'yaxis_text', NULL, NULL, 'bar,line', 'combination', 'tab', 'api', '', 0, NULL, '2020-09-18 15:38:30', 'admin', '2020-09-21 11:06:33', 'admin');
+INSERT INTO `onl_graphreport_head` VALUES ('1468489236388327426', '测试vue3图表', 'ceshi_vue3', 'select log_type,count(*) num from sys_log GROUP BY log_type', 'log_type', 'num', 'yaxis_text', NULL, NULL, 'bar,line,pie,table', 'combination', 'tab', 'sql', '', 0, NULL, '2021-12-08 15:54:52', 'admin', '2026-04-28 17:10:21', 'admin');
+INSERT INTO `onl_graphreport_head` VALUES ('1469195368186544129', '统计工单', 'ccapp_issue', 'select sex,count(1) c from sys_user group by sex', 'sex', 'c', 'yaxis_text', NULL, NULL, 'bar,line,pie,table', 'combination', 'tab', 'sql', '', 0, '1469192181337587714', '2021-12-10 14:40:47', 'jeecg', '2026-04-28 17:10:15', 'admin');
+INSERT INTO `onl_graphreport_head` VALUES ('3a84e175265289e1abff36be3c9f0e4a', '统计一周内步数(JS增强示例)', 'week_count_step', '[\n    {\"day\": \"星期一\", \"step\": 1234, \"assess\": \"良\"},\n    {\"day\": \"星期二\", \"step\": 1884, \"assess\": \"优\"},\n    {\"day\": \"星期三\", \"step\": 1671, \"assess\": \"良+\"},\n    {\"day\": \"星期四\", \"step\": 2197, \"assess\": \"优+\"},\n    {\"day\": \"星期五\", \"step\": 1342, \"assess\": \"中\"},\n    {\"day\": \"星期六\", \"step\": 545, \"assess\": \"差\"},\n    {\"day\": \"星期日\", \"step\": 244, \"assess\": \"极差\"}\n]', 'day', 'step', '步数', NULL, 'onClick.bar = function (event) {\n\n  var x = event.xField\n  var y = event.yField\n  var value = event.value\n\n  // 带值跳转\n  // this.$router.push(\"/isystem/user?value=\" + value)\n  \n  this.$info({\n  	title: \"点击了柱状图\",\n	content: \"X轴：\" + x + \"；Y轴：\" + y + \"；值：\" + value\n  })\n}', 'bar,line,pie,table', 'combination', 'single', 'json', NULL, 0, NULL, '2019-04-24 15:32:24', 'admin', '2020-03-24 18:43:42', 'admin');
+INSERT INTO `onl_graphreport_head` VALUES ('d2bbe1cec4260fe2d4d9e8536fa92ab8', '项目性质收入统计JSON', 'project_statistics', '[\n    {\n        \"column1\": \"市场化-电商业务\",\n        \"column2\": 4865.41,\n        \"column3\": 0,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 0,\n        \"column8\": 4865.41\n    },\n    {\n        \"column1\": \"统筹型\",\n        \"column2\": 35767081.88,\n        \"column3\": 0,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 0,\n        \"column8\": 35767081.88\n    },\n    {\n        \"column1\": \"市场化-非股东\",\n        \"column2\": 1487045.35,\n        \"column3\": 0,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 0,\n        \"column8\": 1487045.35\n    },\n    {\n        \"column1\": \"市场化-参控股\",\n        \"column2\": 382690.56,\n        \"column3\": 0,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 0,\n        \"column8\": 382690.56\n    },\n    {\n        \"column1\": \"市场化-员工福利\",\n        \"column2\": 256684.91,\n        \"column3\": 0,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 0,\n        \"column8\": 265684.91\n    },\n    {\n        \"column1\": \"市场化-再保险\",\n        \"column2\": 563451.03,\n        \"column3\": 0,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 0,\n        \"column8\": 563451.03\n    },\n    {\n        \"column1\": \"市场化-海外业务\",\n        \"column2\": 760576.25,\n        \"column3\": 770458.75,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 0,\n        \"column8\": 1531035.00\n    },\n    {\n        \"column1\": \"市场化-风险咨询\",\n        \"column2\": 0.00,\n        \"column3\": 910183.93,\n        \"column4\": 0,\n        \"column5\": 0,\n        \"column6\": 0,\n        \"column7\": 226415.09,\n        \"column8\": 1136599.02\n    }\n]', 'column1', 'column8', '总计', NULL, NULL, 'pie,bar,line,table', 'combination', 'double', 'json', NULL, 0, NULL, '2019-04-23 16:57:14', 'admin', '2019-04-23 16:57:51', 'admin');
+
+-- ----------------------------
+-- Table structure for onl_graphreport_item
+-- ----------------------------
+DROP TABLE IF EXISTS `onl_graphreport_item`;
+CREATE TABLE `onl_graphreport_item`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'id',
+  `graphreport_head_id` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '主表ID',
+  `field_name` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '字段名',
+  `field_txt` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '字段文本',
+  `is_show` varchar(5) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否列表显示',
+  `is_total` varchar(5) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否计算总计（仅对数值有效）',
+  `search_flag` varchar(2) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否查询',
+  `search_mode` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '查询模式',
+  `dict_code` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '字典Code',
+  `field_href` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '字段href',
+  `field_type` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '字段类型',
+  `order_num` int(11) NULL DEFAULT NULL COMMENT '排序',
+  `replace_val` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '取值表达式',
+  `create_by` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_ogi_graphreport_head_id`(`graphreport_head_id`) USING BTREE,
+  INDEX `idx_ogi_is_show`(`is_show`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'jform_graphreport_item' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of onl_graphreport_item
+-- ----------------------------
+INSERT INTO `onl_graphreport_item` VALUES ('1290934166687383554', '1290934362649460737', 'cout', '人数', 'Y', 'N', 'N', NULL, '', NULL, 'String', 1, NULL, 'admin', '2020-08-05 17:03:06', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('1290934166687383555', '1290934362649460737', 'sex', '性别', 'Y', 'N', 'N', NULL, 'sex', NULL, 'String', 2, NULL, 'admin', '2020-08-05 17:03:06', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('1468489130016583681', '1468489236388327426', 'log_type', 'log_type', 'Y', NULL, NULL, NULL, NULL, NULL, 'String', 0, NULL, 'admin', '2021-12-08 15:54:52', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('1468489130016583682', '1468489236388327426', 'num', 'num', 'Y', NULL, NULL, NULL, NULL, NULL, 'String', 1, NULL, 'admin', '2021-12-08 15:54:52', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('1469195230038753282', '1469195368186544129', 'sex', '性别', 'Y', 'N', 'Y', NULL, 'sex', NULL, 'String', 0, NULL, 'jeecg', '2021-12-13 19:20:12', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('1469195257331089411', '1469195368186544129', 'c', '人数', 'Y', 'N', 'N', NULL, '', NULL, 'String', 1, NULL, 'jeecg', '2021-12-13 19:20:12', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15549645263910', '0dbeb0dfc3ec18f0ce8d1d0caeeb6095', 'day', '日期', 'Y', 'N', 'Y', 'group', '', NULL, 'Date', 1, NULL, 'admin', '2020-06-10 19:08:45', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15549645793241', '0dbeb0dfc3ec18f0ce8d1d0caeeb6095', 'num', '登陆次数', 'Y', 'Y', 'Y', 'group', '', NULL, 'Integer', 2, NULL, 'admin', '2020-06-10 19:08:45', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560092997490', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column1', '项目性质', 'Y', 'N', 'N', NULL, '', NULL, 'String', 1, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560094786891', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column2', '保险经纪佣金费', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 2, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560094789692', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column3', '风险咨询费', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 3, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560094791553', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column4', '承保公估评估费', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 4, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560094793404', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column5', '保险公估费', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 5, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560095450035', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column6', '投标咨询费', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 6, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560095628356', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column7', '内控咨询费', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 7, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560129810847', 'd2bbe1cec4260fe2d4d9e8536fa92ab8', 'column8', '总计', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 8, NULL, 'admin', '2019-04-23 20:01:15', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560934964380', '3a84e175265289e1abff36be3c9f0e4a', 'day', '星期', 'Y', 'N', 'N', NULL, '', NULL, 'String', 1, NULL, 'admin', '2020-03-24 18:43:42', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560934966151', '3a84e175265289e1abff36be3c9f0e4a', 'step', '步数', 'Y', 'Y', 'N', NULL, '', NULL, 'Integer', 2, NULL, 'admin', '2020-03-24 18:43:42', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('15560934968542', '3a84e175265289e1abff36be3c9f0e4a', 'assess', '评估', 'Y', 'N', 'N', NULL, '', NULL, 'String', 3, NULL, 'admin', '2020-03-24 18:43:42', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('16004146313790445268', '1306860129020305409', 'sex', '性别', 'Y', 'N', 'N', NULL, 'sex', NULL, 'String', 1, NULL, 'admin', '2020-09-21 11:06:33', NULL, NULL);
+INSERT INTO `onl_graphreport_item` VALUES ('16004146953271116933', '1306860129020305409', 'cnt', '数量', 'Y', 'N', 'N', NULL, '', NULL, 'String', 2, NULL, 'admin', '2020-09-21 11:06:33', NULL, NULL);
+
+-- ----------------------------
+-- Table structure for onl_graphreport_params
+-- ----------------------------
+DROP TABLE IF EXISTS `onl_graphreport_params`;
+CREATE TABLE `onl_graphreport_params`  (
+  `id` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `head_id` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Online图表ID',
+  `param_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '参数字段',
+  `param_txt` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数文本',
+  `param_value` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数默认值',
+  `order_num` int(11) NULL DEFAULT NULL COMMENT '排序',
+  `create_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人登录名称',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建日期',
+  `update_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '更新人登录名称',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新日期',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `onl_graphreport_param_head_id`(`head_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Online图表：参数表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of onl_graphreport_params
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for onl_graphreport_templet
+-- ----------------------------
+DROP TABLE IF EXISTS `onl_graphreport_templet`;
+CREATE TABLE `onl_graphreport_templet`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `templet_code` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `templet_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '报表名称',
+  `templet_style` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '报表风格模板（单排、双排、Tab模式、分组模式-根据配置动态展示、可自定义...）',
+  `create_time` datetime NULL DEFAULT NULL,
+  `create_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `update_time` datetime NULL DEFAULT NULL,
+  `update_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of onl_graphreport_templet
+-- ----------------------------
+INSERT INTO `onl_graphreport_templet` VALUES ('02ff397e9714a22bf6efdfc7ba6d9041', 'test_many_source_tab', '多数据源Tab风格', 'tab', '2019-04-18 19:33:39', 'admin', '2020-10-09 14:45:42', 'admin');
+INSERT INTO `onl_graphreport_templet` VALUES ('46a14bee5780f2c0cc7a785c94a0b6a7', 'test_many_source_double', '多数据源双排风格', 'double', '2019-04-17 18:20:58', 'admin', '2019-04-17 18:21:14', 'admin');
+INSERT INTO `onl_graphreport_templet` VALUES ('bc154d35a1ec3eb4dd0f193dbecfbcb5', 'templet_combination', '多数据源组合布局', 'combination', '2019-05-11 16:18:44', 'admin', '2020-10-09 14:44:54', 'admin');
+INSERT INTO `onl_graphreport_templet` VALUES ('dcf1e8aa1745937d511743f77ecfc40a', 'test_many_source_single', '多数据源单排风格', 'single', '2019-04-18 19:34:19', 'admin', '2019-04-19 16:00:49', 'admin');
+
+-- ----------------------------
+-- Table structure for onl_graphreport_templet_item
+-- ----------------------------
+DROP TABLE IF EXISTS `onl_graphreport_templet_item`;
+CREATE TABLE `onl_graphreport_templet_item`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `graphreport_templet_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `graphreport_code` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图表编码',
+  `graphreport_type` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图表类型（饼状图、曲线图、柱状图、数据列表等）',
+  `group_num` int(11) NULL DEFAULT NULL COMMENT '组合数字，默认值0 非必填',
+  `group_style` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '组合展示风格（1 卡片，2 tab）非必填',
+  `group_txt` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '分组描述',
+  `order_num` int(11) NULL DEFAULT NULL COMMENT '排序',
+  `is_show` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否显示 1显示 0不显示，默认1',
+  `create_time` datetime NULL DEFAULT NULL,
+  `create_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `update_time` datetime NULL DEFAULT NULL,
+  `update_by` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_ogti_grreport_tempid`(`graphreport_templet_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of onl_graphreport_templet_item
+-- ----------------------------
+INSERT INTO `onl_graphreport_templet_item` VALUES ('12332331137671', '46a14bee5780f2c0cc7a785c94a0b6a7', 'week_count_step', 'bar', 0, 'card', '统计', 2, '1', '2019-04-26 19:12:37', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('12332331142472', '46a14bee5780f2c0cc7a785c94a0b6a7', 'project_statistics', 'normal', 1, 'card', '项目', 1, '1', '2019-04-26 19:12:37', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('12332332338280', '46a14bee5780f2c0cc7a785c94a0b6a7', 'login_count_charts', 'line', 0, 'card', '统计', 1, '1', '2019-04-26 19:12:37', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15552332338280', '02ff397e9714a22bf6efdfc7ba6d9041', 'login_count_charts', 'line', 0, 'card', '统计', 1, '1', '2020-10-09 14:45:42', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15555872338280', 'dcf1e8aa1745937d511743f77ecfc40a', 'login_count_charts', 'line', 0, 'tabs', '统计', 1, '1', '2019-10-04 00:39:31', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15562331137671', '02ff397e9714a22bf6efdfc7ba6d9041', 'week_count_step', 'bar', 0, 'card', '统计', 2, '1', '2020-10-09 14:45:42', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15562331142472', '02ff397e9714a22bf6efdfc7ba6d9041', 'project_statistics', 'normal', 1, 'card', '项目', 3, '1', '2020-10-09 14:45:42', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15562671137671', 'dcf1e8aa1745937d511743f77ecfc40a', 'week_count_step', 'bar', 0, 'tabs', '统计', 2, '1', '2019-10-04 00:39:31', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15562671142472', 'dcf1e8aa1745937d511743f77ecfc40a', 'project_statistics', 'normal', 1, 'card', '项目', 1, '1', '2019-10-04 00:39:31', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15575624810180', 'bc154d35a1ec3eb4dd0f193dbecfbcb5', 'login_count_charts', 'line', 0, 'card', '', 1, '1', '2020-10-09 14:44:54', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15575624830441', 'bc154d35a1ec3eb4dd0f193dbecfbcb5', 'project_statistics_sql', 'bar', 0, 'card', '', 2, '1', '2020-10-09 14:44:54', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15575712802712', 'bc154d35a1ec3eb4dd0f193dbecfbcb5', 'monthly_growth_analysis', 'bar', 1, 'card', '', 3, '1', '2020-10-09 14:44:54', 'admin', NULL, NULL);
+INSERT INTO `onl_graphreport_templet_item` VALUES ('15575712972193', 'bc154d35a1ec3eb4dd0f193dbecfbcb5', 'week_count_step', 'line', 1, 'card', '', 4, '1', '2020-10-09 14:44:54', 'admin', NULL, NULL);
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+INSERT INTO `sys_permission` (`id`, `parent_id`, `name`, `url`, `component`, `is_route`, `component_name`, `redirect`, `menu_type`, `perms`, `perms_type`, `sort_no`, `always_show`, `icon`, `is_leaf`, `keep_alive`, `hidden`, `hide_tab`, `description`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`, `rule_flag`, `status`, `internal_or_external`) VALUES ('1461278375076913153', '1455100420297859074', 'Online图表配置', '/online/graphreport', 'super/online/graphreport/GraphreportList', 1, NULL, NULL, 1, NULL, '0', 3.00, 0, NULL, 0, 0, 0, 0, NULL, 'admin', '2021-11-18 18:21:29', NULL, NULL, 0, 0, NULL, 0);
+INSERT INTO `sys_permission` (`id`, `parent_id`, `name`, `url`, `component`, `is_route`, `component_name`, `redirect`, `menu_type`, `perms`, `perms_type`, `sort_no`, `always_show`, `icon`, `is_leaf`, `keep_alive`, `hidden`, `hide_tab`, `description`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`, `rule_flag`, `status`, `internal_or_external`) VALUES ('1535225603236052993', '1461278375076913153', '批量删除', NULL, NULL, 0, NULL, NULL, 2, 'online:graphreport:deleteBatch', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2022-06-10 19:41:21', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` (`id`, `parent_id`, `name`, `url`, `component`, `is_route`, `component_name`, `redirect`, `menu_type`, `perms`, `perms_type`, `sort_no`, `always_show`, `icon`, `is_leaf`, `keep_alive`, `hidden`, `hide_tab`, `description`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`, `rule_flag`, `status`, `internal_or_external`) VALUES ('1535125603236051993', '1461278375076913153', '删除', NULL, NULL, 0, NULL, NULL, 2, 'online:graphreport:delete', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2022-06-10 19:41:21', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` (`id`, `parent_id`, `name`, `url`, `component`, `is_route`, `component_name`, `redirect`, `menu_type`, `perms`, `perms_type`, `sort_no`, `always_show`, `icon`, `is_leaf`, `keep_alive`, `hidden`, `hide_tab`, `description`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`, `rule_flag`, `status`, `internal_or_external`) VALUES ('1535125603236051994', '1461278375076913153', '添加', NULL, NULL, 0, NULL, NULL, 2, 'online:graphreport:add', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2022-06-10 19:41:21', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` (`id`, `parent_id`, `name`, `url`, `component`, `is_route`, `component_name`, `redirect`, `menu_type`, `perms`, `perms_type`, `sort_no`, `always_show`, `icon`, `is_leaf`, `keep_alive`, `hidden`, `hide_tab`, `description`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`, `rule_flag`, `status`, `internal_or_external`) VALUES ('1535125603236051995', '1461278375076913153', '修改', NULL, NULL, 0, NULL, NULL, 2, 'online:graphreport:edit', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2022-06-10 19:41:21', NULL, NULL, 0, 0, '1', 0);
+INSERT INTO `sys_permission` (`id`, `parent_id`, `name`, `url`, `component`, `is_route`, `component_name`, `redirect`, `menu_type`, `perms`, `perms_type`, `sort_no`, `always_show`, `icon`, `is_leaf`, `keep_alive`, `hidden`, `hide_tab`, `description`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`, `rule_flag`, `status`, `internal_or_external`) VALUES ('1535125603236051996', '1461278375076913153', '解析字段', NULL, NULL, 0, NULL, NULL, 2, 'online:graphreport:parseField', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2022-06-10 19:41:21', NULL, NULL, 0, 0, '1', 0);
