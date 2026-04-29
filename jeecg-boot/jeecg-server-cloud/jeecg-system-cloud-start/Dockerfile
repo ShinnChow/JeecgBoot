@@ -20,6 +20,6 @@ WORKDIR /jeecg-system-cloud
 
 EXPOSE 7001
 
-ADD ./target/jeecg-system-cloud-start-3.9.1.jar ./
+ADD ./target/jeecg-system-cloud-start-3.9.2.jar ./
 
-CMD sleep 60 && exec java -Djava.security.egd=file:/dev/./urandom -jar jeecg-system-cloud-start-3.9.1.jar
+CMD sleep 60 && exec java -Djava.security.egd=file:/dev/./urandom -jar jeecg-system-cloud-start-3.9.2.jar
